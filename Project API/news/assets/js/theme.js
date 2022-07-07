@@ -10,7 +10,7 @@ var theme = {
     theme.stickyHeader();
     theme.subMenu();
     theme.offCanvas();
-    theme.isotope();
+    //theme.isotope();
     theme.onepageHeaderOffset();
     theme.anchorSmoothScroll();
     theme.svgInject();

@@ -1,7 +1,8 @@
 $(document).ready(function () {
   let mainMenu = $(".main_menu");
-  let articleLarge= $("#article_large");
-  let articleSmall= $("#article_small");
+  let articleLarge = $("#article_large");
+  let articleSmall = $("#article_small");
+ 
 
   $.ajax({
     type: "GET",
@@ -17,15 +18,16 @@ $(document).ready(function () {
       for (let i = 0; i < data.length; i++) {
         let name = data[i].name;
         let link = data[i].link;
+        let linkCategory = "category.html?id=" + data[i].id;
         if (i < 5) {
           content += `
             <li class="nav-item">
-                <a class="nav-link" href="${link}">${name}</a>
+                <a class="nav-link" href="${linkCategory}">${name}</a>
             </li>
                 `;
         } else {
           contentMenuOther += `
-            <li class="nav-item"><a class="dropdown-item" href="${link}">${name}</a></li>
+            <li class="nav-item"><a class="dropdown-item" href="${linkCategory}">${name}</a></li>
             `;
         }
       }
@@ -47,17 +49,19 @@ $(document).ready(function () {
     type: "GET",
     url: "http://apiforlearning.zendvn.com/api/articles",
     data: {
-        offset:0,
-        limit:3
+      offset: 0,
+      limit: 3,
     },
     dataType: "json",
     success: function (data) {
-        let content="";
-        for (let i = 0; i < data.length; i++) {
-           content +=`
+      let content = "";
+
+      for (let i = 0; i < data.length; i++) {
+        let linkDetail = "detail.html?id=" + data[i].id;
+        content += `
            <article class="post">
-                                <div class="card shadow-lg">
-                                    <figure class="card-img-top overlay overlay-1"><a href="detail.html"><img
+                                <div class="card shadow-lg"> 
+                                    <figure class="card-img-top overlay overlay-1"><a href="${linkDetail}"><img
                                                 src="${data[i].thumb}"" alt="" /></a>
                                         <figcaption>
                                             <h5 class="from-top mb-0">Read More</h5>
@@ -66,11 +70,11 @@ $(document).ready(function () {
                                     <div class="card-body">
                                         <div class="post-header">
                                             <div class="post-category">
-                                                <a href="#" class="hover link-grape" rel="category">${data[i].tittle}</a>
+                                                <a href="#" class="hover link-grape" rel="category">${data[i].title}</a>
                                             </div>
                                             <!-- /.post-category -->
                                             <h2 class="post-title mt-1 mb-0"><a class="link-navy"
-                                                    href="./blog-post.html">Amet Dolor Bibendum Parturient Cursus</a>
+                                                    href="${linkDetail}">${data[i].title}</a>
                                             </h2>
                                         </div>
                                         <!-- /.post-header -->
@@ -97,26 +101,29 @@ $(document).ready(function () {
                                 </div>
                                 <!-- /.card -->
                             </article>
-           `;           
-        }
-       articleLarge.html(content);
-    }
+           `;
+      }
+      articleLarge.html(content);
+    },
   });
+
+
   $.ajax({
     type: "GET",
     url: "http://apiforlearning.zendvn.com/api/articles",
     data: {
-        offset:3,
-        limit:4
+      offset: 3,
+      limit: 4,
     },
     dataType: "json",
     success: function (data) {
-        let content="";
-        for (let i = 0; i < data.length; i++) {
-            content += `
+      let content = "";
+      for (let i = 0; i < data.length; i++) {
+        let linkDetail = "detail.html?id=" + data[i].id;
+        content += `
             <article class="item post col-md-6">
                                     <div class="card shadow-lg">
-                                        <figure class="card-img-top overlay overlay-1"><a href="#"> <img
+                                        <figure class="card-img-top overlay overlay-1"><a href="${linkDetail}"> <img
                                                     src="${data[i].thumb}" alt="" /></a>
                                             <figcaption>
                                                 <h5 class="from-top mb-0">Read More</h5>
@@ -129,7 +136,7 @@ $(document).ready(function () {
                                                 </div>
                                                 <!-- /.post-category -->
                                                 <h2 class="post-title h3 mt-1 mb-3"><a class="link-navy"
-                                                        href="./blog-post.html">${data[i].tittle}</a></h2>
+                                                        href="${linkDetail}">${data[i].title}</a></h2>
                                             </div>
                                             <!-- /.post-header -->
                                             <div class="post-content">
@@ -153,10 +160,8 @@ $(document).ready(function () {
                                     <!-- /.card -->
                                 </article>
             `;
-            
-        }
-        articleSmall.html(content);
-    }
+      }
+      articleSmall.html(content);
+    },
   });
-  
 });

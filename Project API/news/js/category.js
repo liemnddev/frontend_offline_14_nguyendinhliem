@@ -1,34 +1,54 @@
 $(document).ready(function () {
-    let mainMenu = $(".main_menu");
-    $.ajax({
-        type: "GET",
-        url: "http://apiforlearning.zendvn.com/api/categories_news",
-        data: {
-          offset: 0,
-          limit: 20,
-        },
-        dataType: "json",
-        success: function (data) {
-          let content = "";
-          let contentMenuOther = "";
-          for (let i = 0; i < data.length; i++) {
-            let name = data[i].name;
-            let link = data[i].link;
-            if (i < 5) {
-              content += `
+  let mainMenu = $(".main_menu");
+  let articleLarge = $("#article_large");
+  let articleSmall = $("#article_small");
+  let titleLarge = $("#title_large");
+  
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const id = urlParams.get("id");
+console.log(typeof(id));
+  let API_URL =
+    "http://apiforlearning.zendvn.com/public/api/categories_news/" + id +"/articles";
+
+  // =================MENU================
+  $.ajax({
+    type: "GET",
+    url: "http://apiforlearning.zendvn.com/api/categories_news",
+    data: {
+      offset: 0,
+      limit: 20,
+    },
+    dataType: "json",
+    success: function (data) {
+      let content = "";
+      let contentMenuOther = "";
+      for (let i = 0; i < data.length; i++) {
+        let name = data[i].name;
+        let link = data[i].link;
+        let linkCategory = "category.html?id=" + data[i].id;
+        if (i == data[i].id) {
+          titleLarge.html(`<h1 class="display-1 mb-3">${name}</h1>`);
+        }
+        if (i < 5) {
+          content += `
                 <li class="nav-item">
-                    <a class="nav-link" href="${link}">${name}</a>
+                    <a class="nav-link" href="${linkCategory}">${name}</a>
                 </li>
                     `;
-            } else {
-              contentMenuOther += `
-                <li class="nav-item"><a class="dropdown-item" href="${link}">${name}</a></li>
+        } else {
+          contentMenuOther += `
+                <li class="nav-item"><a class="dropdown-item" href="${linkCategory}">${name}</a></li>
                 `;
-            }
-          }
-          let result =
-            content +
-            `
+        }
+        if (i == id - 1) {
+          titleLarge.html(` <h1 class="display-1 mb-3">${name}</h1>`);
+        }
+      }
+
+      let result =
+        content +
+        `
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Danh mục
                     khác</a>
@@ -36,22 +56,25 @@ $(document).ready(function () {
                     ${contentMenuOther}
                 </ul>
             </li>`;
-          mainMenu.html(result);
-        },
-      });
-    $.ajax({
-        type: "GET",
-        url: "http://apiforlearning.zendvn.com/api/categories_news/1/articles",
-        data: "data",
-        dataType: "json",
-        success: function (data) {
-            let content ="";
-            for (let i = 0; i < data.length; i++) {
-               content += `
+
+      mainMenu.html(result);
+    },
+  });
+  // =================ARTICLE LARGE================
+  $.ajax({
+    type: "GET",
+    url: API_URL,
+    data: "data",
+    dataType: "json",
+    success: function (data) {
+      let content = "";
+      for (let i = 0; i < data.length; i++) {
+        let linkDetail = "detail.html?id=" + data[i].id;
+        content += `
                <article class="post">
                <div class="card">
                    <figure class="card-img-top overlay overlay-1 hover-scale"><a
-                           href="./blog-post.html"><img src="./assets/img/photos/b1.jpg" alt="" /></a>
+                           href="${linkDetail}"><img src="${data[i].thumb}" alt="" /></a>
                        <figcaption>
                            <h5 class="from-top mb-0">Read More</h5>
                        </figcaption>
@@ -63,26 +86,19 @@ $(document).ready(function () {
                            </div>
                            <!-- /.post-category -->
                            <h2 class="post-title mt-1 mb-0"><a class="link-dark"
-                                   href="./blog-post.html">Amet Dolor Bibendum Parturient Cursus</a>
+                                   href="${linkDetail}">${data[i].title}</a>
                            </h2>
                        </div>
                        <!-- /.post-header -->
                        <div class="post-content">
-                           <p>Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget
-                               lacinia odio sem nec elit. Nullam quis risus eget urna mollis ornare
-                               vel. Nulla vitae elit libero, a pharetra augue. Praesent commodo cursus
-                               magna, vel scelerisque nisl consectetur et. Sed posuere consectetur est
-                               at lobortis. Cras mattis consectetur purus sit amet fermentum. Fusce
-                               dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh. Cras
-                               mattis consectetur purus.</p>
+                           <p>${data[i].description}</p>
                        </div>
                        <!-- /.post-content -->
                    </div>
                    <!--/.card-body -->
                    <div class="card-footer">
                        <ul class="post-meta d-flex mb-0">
-                           <li class="post-date"><i class="uil uil-calendar-alt"></i><span>5 Jul
-                                   2022</span></li>
+                           <li class="post-date"><i class="uil uil-calendar-alt"></i><span>${data[i].created_at}</span></li>
                            <li class="post-author"><a href="#"><i class="uil uil-user"></i><span>By
                                        Sandbox</span></a></li>
                            <li class="post-comments"><a href="#"><i class="uil uil-comment"></i>3<span>
@@ -97,9 +113,62 @@ $(document).ready(function () {
                <!-- /.card -->
            </article>
                `;
-                
-            }
-            
-        }
-    });
-})
+      }
+      articleLarge.html(content);
+    },
+  });
+  // =================ARTICLE SMALL================
+  $.ajax({
+    type: "GET",
+    url: API_URL,
+    data: "data",
+    dataType: "json",
+    success: function (data) {
+      let content = "";
+      for (let i = 0; i < data.length; i++) {
+        let linkDetail = "detail.html?id=" + data[i].id;
+        content += `
+            <article class="item post col-md-6">
+                                    <div class="card">
+                                        <figure class="card-img-top overlay overlay-1 hover-scale"><a href="${linkDetail}"> <img
+                                                    src="${data[i].thumb}" alt="" /></a>
+                                            <figcaption>
+                                                <h5 class="from-top mb-0">Read More</h5>
+                                            </figcaption>
+                                        </figure>
+                                        <div class="card-body">
+                                            <div class="post-header">
+                                                <div class="post-category text-line">
+                                                    <a href="#" class="hover" rel="category">Coding</a>
+                                                </div>
+                                                <!-- /.post-category -->
+                                                <h2 class="post-title h3 mt-1 mb-3"><a class="link-dark"
+                                                        href="${linkDetail}">${data[i].title}</a></h2>
+                                            </div>
+                                            <!-- /.post-header -->
+                                            <div class="post-content">
+                                                <p>${data[i].description}</p>
+                                            </div>
+                                            <!-- /.post-content -->
+                                        </div>
+                                        <!--/.card-body -->
+                                        <div class="card-footer">
+                                            <ul class="post-meta d-flex mb-0">
+                                                <li class="post-date"><i class="uil uil-calendar-alt"></i><span>${data[i].created_at}</span></li>
+                                                <li class="post-comments"><a href="#"><i
+                                                            class="uil uil-comment"></i>4</a></li>
+                                                <li class="post-likes ms-auto"><a href="#"><i
+                                                            class="uil uil-heart-alt"></i>5</a></li>
+                                            </ul>
+                                            <!-- /.post-meta -->
+                                        </div>
+                                        <!-- /.card-footer -->
+                                    </div>
+                                    <!-- /.card -->
+                                </article>
+            `;
+      }
+      articleSmall.html(content);
+    },
+  });
+});
